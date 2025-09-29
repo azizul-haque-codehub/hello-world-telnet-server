@@ -13,30 +13,29 @@ const CYAN = "\x1b[36m";
 const server = net.createServer((socket) => {
   console.log("Client connected");
 
-  // Handle socket errors
-  socket.on("error", (err) => {
-    console.log("Socket error:", err.message);
-  });
+  // Funny Welcome
+  socket.write(MAGENTA + "😎 Welcome to Funny Telnet Server! 😎\n" + RESET);
+  socket.write(CYAN + "Type anything and see what happens...\n\n" + RESET);
 
-  // Welcome message
-  socket.write("Welcome!\n");
-
-  // Example animation
+  // Rotating emoji animation
   let i = 0;
-  const frames = ["😜", "🤪", "😎", "🤩"];
+  const frames = ["+", "-", "/", "|"];
   const anim = setInterval(() => {
-    if (socket.destroyed) { // Stop if socket closed
-      clearInterval(anim);
-      return;
-    }
-    socket.write("\rLoading " + frames[i % frames.length]);
+    socket.write("\r" + YELLOW + "Type your words: " + frames[i % frames.length] + RESET);
     i++;
   }, 300);
 
+  // Echo client input with playful twist
   socket.on("data", (data) => {
-    if (!socket.destroyed) {
-      socket.write("\nYou typed: " + data.toString());
-    }
+    const input = data.toString().trim();
+    const responses = [
+      `😂 You just typed "${input}"!`,
+      `🤔 Hmm... "${input}"? Interesting!`,
+      `😲 OMG "${input}" is a cool word!`,
+      `😎 Keep typing "${input}", I'm watching!`
+    ];
+    const resp = responses[Math.floor(Math.random() * responses.length)];
+    socket.write("\n" + BLUE + resp + RESET + "\n");
   });
 
   socket.on("end", () => {
@@ -45,9 +44,7 @@ const server = net.createServer((socket) => {
   });
 });
 
-
 // Run server on port 2323
-const PORT = process.env.PORT || 2323;
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Funny Telnet server running on port ${PORT}`);
+server.listen(2323, () => {
+  console.log("Funny Telnet server running on port 2323!");
 });
